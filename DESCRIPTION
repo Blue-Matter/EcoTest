@@ -1,0 +1,20 @@
+Package: EcoTest
+Type: Package
+Title: Testing AI Indicators of Stock Status
+Version: 0.1.8
+Authors@R: c(
+    person(
+      "Tom", "Carruthers",
+      email = "tom@bluematterscience.com",
+      role = c("aut", "cre")
+    )
+  )
+Description: Theoretical (simulation) and empirical (comparison with stock assessments) evaluation of indicators of spawning biomass relative to MSY levels. 
+License: GNU-3
+Encoding: UTF-8
+LazyData: true
+Depends:
+  data.table,
+  keras3,
+  tensorflow
+RoxygenNote: 7.3.3
