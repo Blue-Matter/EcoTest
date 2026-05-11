@@ -310,7 +310,8 @@ Open RStudio and run the following lines of code at the R command prompt:
 # Keras, Tensorflow, Miniconda
 install.packages("keras3")
 library(keras3)
-install_keras()
+install_keras() # Note that to make this work you may have to install python (line below)
+# reticulate::install_python(version = '3.11')
 
 # EcoTest package 
 install.packages("remotes")

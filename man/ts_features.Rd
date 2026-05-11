@@ -21,7 +21,7 @@ ts_features(ts, lab = "", enp.mult = 0.2, rnd = 3, plot = T)
 Extract time-series features for Indicator 2 data inputs
 }
 \examples{
-ts.features(sin(seq(0,10,length.out=40)))
+ts_features(1.5+sin(seq(1,12,length.out=40)),"C")
 }
 \author{
 T. Carruthers
