@@ -1,6 +1,6 @@
 #library(ETest)
 
-train_data_comp = function(train, strain,tdata, sdata){
+train_data_comp = function(train, strain, tdata, sdata){
   # transformed data
   mintrain = apply(train,2,min)
   maxtrain = apply(train,2,max)

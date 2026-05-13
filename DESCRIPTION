@@ -1,7 +1,7 @@
 Package: EcoTest
 Type: Package
 Title: Testing AI Indicators of Stock Status
-Version: 0.1.8
+Version: 0.3.9
 Authors@R: c(
     person(
       "Tom", "Carruthers",
@@ -16,5 +16,6 @@ LazyData: true
 Depends:
   data.table,
   keras3,
-  tensorflow
+  tensorflow,
+  EcoTestData
 RoxygenNote: 7.3.3
