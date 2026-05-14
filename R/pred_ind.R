@@ -61,7 +61,7 @@ pred_ind = function(Ind){
   is_retro=!is.null(Ind$retro)
   sdata = Ind$sdata
   if(!is_retro){
-     pred = exp((model %>% predict(sdata[[1]]))[,1])
+     pred = exp((model %>% predict(sdata))[,1])
   }else{
     sretro= Ind$sretro
     pred = lapply(sretro,function(x)exp((model %>% predict(x[[1]]))[,1]))

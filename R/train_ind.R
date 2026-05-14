@@ -46,6 +46,7 @@ data_comp=function(td, data){
 #' A function that examines the user specified data, subsets the training dataset for those features (data types), standardizes the user data and trains a bespoke neural network indicator for the user specified data types.
 #'
 #' @param input Either a list object with a single dataset (e.g. Shark_1_data) or a list object npeels long with a dataset for retrospective analysis (e.g. Shark_1_retro).
+#' @param TD The training dataset (requires EcoTestData) and created by prepare_TD()
 #' @param nodes A vector of 2 positions. Positive integers. There are few general rules for neural network design. However one rule of thumb is that the width of the first and second layer of the neural network. In general, the first layer should be smaller than the number of features (data types) in the user specified dataset. The second layer should be smaller than the first layer. Check for overparameterization in the fitting plots (e.g. a validation MAE that is substantially higher than the training MAE).
 #' @param nepoch Positive integer. The number of iterations (passes of the back propagation algorithm) used in the training of the neural network. Should be sufficient that loss (or MAE) has stabilised.
 #' @param plot Boolean. Should a simulated vs predicted plot / confusion matrix be presented for the independent testing dataset?
@@ -59,7 +60,7 @@ data_comp=function(td, data){
 #' train_ind(Shark_1_data)
 #' @author T. Carruthers
 #' @export
-train_ind=function(input, nodes = c(6, 3), nepoch = 20, plot = T, model=NULL, model_savefile=NA,
+train_ind=function(input, TD, nodes = c(10, 5), nepoch = 20, plot = T, model=NULL, model_savefile=NA,
                     validation_split=0.1, test_split = 0.1, lev=c(0.5,1),seed=1){
 
   set.seed(seed)
@@ -73,7 +74,7 @@ train_ind=function(input, nodes = c(6, 3), nepoch = 20, plot = T, model=NULL, mo
     retro = tretro = sretro = NULL
   }
 
-  cat(paste0("Dataset provided with ",ncol(data$dat), " features: ", paste0(colnames(data$dat),collapse=", ")," \n"))
+  cat(paste0("Dataset provided with ",ncol(data[[1]]), " features: ", paste0(colnames(data[[1]]),collapse=", ")," \n"))
 
   lookupnam = c("Res",names(data[[1]]))
   dind = match(lookupnam,names(TD))
@@ -92,22 +93,6 @@ train_ind=function(input, nodes = c(6, 3), nepoch = 20, plot = T, model=NULL, mo
     }
   }
 
-  cat("Transforming input data: log() of positive real numbers, logit() of fractions. \n")
-  tdata = data
-  tdata[[1]] = dolog_2(tdata[[1]])                                  # log imperfect fractions
-  tdata[[1]] = dologit(tdata[[1]],types = "VML")                    # logit proportions (but rescaled 0.05 - 0.95 prior to logit)
-
-  if(is_retro){
-    for(pp in 1:npeels){
-      tretro[[pp]][[1]] = dolog_2(retro[[pp]][[1]])
-      tretro[[pp]][[1]] = dologit(tretro[[pp]][[1]],types="VML")
-    }
-  }
-
-  datac = data_comp(td,tdata)
-  keep = datac$inside
-
-  td = td[,c(TRUE,keep)]
   nr<-nrow(td);   nc<-ncol(td)
   p_nontrain = test_split
   train_switch = sample(c(TRUE,FALSE),nr,replace=T,prob=c(1-p_nontrain,p_nontrain))
@@ -123,8 +108,8 @@ train_ind=function(input, nodes = c(6, 3), nepoch = 20, plot = T, model=NULL, mo
 
   # Empirical dataset
   cat("Using training dataset mean and stdev to standardize submitted data. \n")
-  sdata = tdata
-  sdata[[1]] = scale(tdata[[1]][,keep], center=mu, scale=sd)
+  sdata = data[[1]]
+  sdata = scale(sdata, center=mu, scale=sd)
 
   if(is_retro){
     for(pp in 1:npeels) sretro[[pp]][[1]] = scale(tretro[[pp]][[1]][,keep], center=mu, scale=sd)
@@ -135,10 +120,10 @@ train_ind=function(input, nodes = c(6, 3), nepoch = 20, plot = T, model=NULL, mo
   cat(paste0(test_split*100, "% of training dataset randomly selected for testing of neural network after fitting (test_split). \n"))
   cat(paste0("Of the remaining training dataset (", (1-test_split)*100, "%), ", validation_split*100, "% are randomly selected for validation during fitting (validation_split). \n"))
 
-  ind = (1:nr)[!train_switch]
-  testy<-td[ind,2:nc]
+  testy_target<-td[!train_switch,1]
+  testy<-td[!train_switch,2:nc]
   testy=scale(testy,center=mu,scale=sd)
-  testy_target<-td[ind,1]
+
 
   cat("Initializing and compiling neural network. \n")
   if(is.null(model))model = keras_model_sequential()
@@ -171,9 +156,9 @@ train_ind=function(input, nodes = c(6, 3), nepoch = 20, plot = T, model=NULL, mo
 
   if(!is.na(model_savefile))save_model(model,filepath = model_savefile, overwrite=T)
 
-  if(!all(colnames(train)==names(sdata[[1]]))) stop("Internal Error: something weird happened, training dataset does not match size of submitted data object")
+  if(!all(colnames(train)==names(sdata))) stop("Internal Error: something weird happened, training dataset does not match size of submitted data object")
 
-  outlist=list(MAE = MAE, sim=sim, pred=pred, grid=grid, tab = tab, model=model, train=train,
+  outlist=list(MAE = MAE, sim=sim, pred=pred, grid=grid, tab = tab, model=model, train=train, strain = strain,
                train_target=train_target, nepoch = nepoch, r2 = cor(sim,pred)^2, history = history,
                lev=lev, mu = mu, sd = sd, data = data, sdata = sdata, retro=retro, tretro=tretro, sretro=sretro)
 

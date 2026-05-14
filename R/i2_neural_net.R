@@ -19,69 +19,65 @@
 #' train_NN(TD)
 #' @author T. Carruthers
 #' @export
-train_NN = function(TD, nodes = c(4, 2), nepoch = 20, plot = T, model=NULL, model_savefile=NA, 
+train_NN = function(TD, nodes = c(4, 2), nepoch = 20, plot = T, model=NULL, model_savefile=NA,
                     validation_split=0.1, test_split = 0.1, lev=c(0.5,1), seed=1){
   set.seed(seed)
   nr<-nrow(TD)
   nc<-ncol(TD)
   p_nontrain = test_split
   train_switch = sample(c(TRUE,FALSE),nr,replace=T,prob=c(1-p_nontrain,p_nontrain))
-  
+
   # Training dataset
   train<-TD[train_switch, 2:nc]
   mu = apply(train, 2, mean)
   sd = apply(train, 2, sd)
   train = scale(train, center=mu, scale=sd)
   train_target<-TD[train_switch, 1]
-  
+
   # Test
-  #nnt = sum(!train_switch)
-  #breakpt = ceiling(nnt*validation_split/p_nontrain)
-  #valnos = allnos[1:breakpt]
-  #testnos = allnos[(breakpt+1):length(allnos)]
   ind = (1:nr)[!train_switch]
   testy<-TD[ind,2:nc]
   testy=scale(testy,center=mu,scale=sd)
   testy_target<-TD[ind,1]
-  
+
   if(is.null(model))model = keras_model_sequential()
-  
+
   model %>%
     layer_dense(units = nodes[1], activation = "relu") %>%
     layer_dense(units = nodes[2], activation = "relu") %>%
     layer_dense(units = 1)
-  
+
   model %>%
     compile(
       loss = 'MSE', #mean_squared_error',#"mse",#mae",#"mse",
       optimizer =  optimizer_adam(), #'adam',#optimizer_rmsprop(),'rmsprop',
       metrics = "MAE"
     )
-  
+
   history <- model %>% fit(train, train_target,
                            epochs = nepoch,
                            validation_split = validation_split,
                            verbose = 2
   )
-  
-  
+
+
   pred = exp((model %>% predict(testy))[,1])
   sim = exp(testy_target)
   tab = NN_fit(sim, pred, history, lev=lev, addpow=T,nepoch=nepoch,plot=F)
 
-  
+
   MAE = history$metrics$val_MAE[nepoch]
-  
+
   if(!is.na(model_savefile))save_model(model,filepath = model_savefile, overwrite=T)
-  
-  outlist=list(MAE = MAE, sim=sim, pred=pred, grid=grid, tab = tab, model=model, train=train, 
+
+  outlist=list(MAE = MAE, sim=sim, pred=pred, grid=grid, tab = tab, model=model, train=train,
        train_target=train_target, nepoch = nepoch, r2 = cor(sim,pred)^2, history = history,
        lev=lev, mu = mu, sd = sd)
-  
+
   if(plot)(pred_plot(outlist))
-  
+
   outlist
-  
+
 }
 
 
@@ -145,10 +141,10 @@ resp_subsetter = function(cdat, sno, isBrel){
   Res = log(Res)
   dat = cbind(Res,cdat[,!Brelcols])
   dat
-} 
+}
 
 rem_const = function(dat){
-  isconst = apply(dat,2,sd)<1E-10 
+  isconst = apply(dat,2,sd)<1E-10
   if(sum(isconst,na.rm=T)>0){
     cat(paste(paste(names(dat)[isconst],collapse=", "), "dropped for sd < 1E-10 \n"))
     dat = dat[,!isconst]
@@ -159,12 +155,12 @@ rem_const = function(dat){
 dolog_2=function(dat){
   dolog(dat, types = c("I_rel","C_rel","FM_cur","FM_rel","ML_cur",
                              "ML_rel","MV_cur","MV_rel","ML_Linf", "MA_cur", "MA_rel",
-                             "ML_L50","CR_rel","maxa","K","M_K","L50_Linf","L5_L50", 
+                             "ML_L50","CR_rel","maxa","K","M_K","L50_Linf","L5_L50",
                              "LFS_L50","Csd","CF","Isd"))
 }
-                          
-                         
-makerawdata_2 = function(allout, sno=1, isBrel = F,  
+
+
+makerawdata_2 = function(allout, sno=1, isBrel = F,
                        inc_Irel = T, inc_I = T, inc_CR = T, inc_CAL = T, inc_CAA = T,
                        stock_in = NA, fleet_in = NA, Brange = c(0.025,4.5)){
   # sno=1; isBrel = F; clean = T;  inc_Irel = T; inc_I = T;  inc_CR = T; stock_in = NA; inc_CAL = T; inc_CAA = T
@@ -174,17 +170,17 @@ makerawdata_2 = function(allout, sno=1, isBrel = F,
   stocks = sapply(dnames[Brelcols],function(x)strsplit(x,"_")[[1]][2])
   if(is.na(stock_in[1]))stock_in = stocks[stocks!=sno]
   if(is.na(fleet_in[1]))fleet_in = 1:3
-  
+
   cdat = stock_subsetter(cdat, sno, stock_in) # keep only those listed in sno and stock_in
   cdat = fleet_subsetter(cdat, fleet_in)                # keep only those fleets in nfleet
   cdat = data_subsetter(cdat,  inc_Irel, inc_I, inc_CR, inc_CAL, inc_CAA) # only include those data that are specified to be available
   dat = resp_subsetter(cdat, sno, isBrel)                     # gets the right response variable according to sno
-  dat = dolog_2(dat)                                  # log imperfect fractions 
+  dat = dolog_2(dat)                                  # log imperfect fractions
   dat = dologit(dat,types = "VML")                    # logit proportions (but rescaled 0.05 - 0.95 prior to logit)
-  dat = cleandat_2(dat,resprange = log(Brange))       # clean NAs and Infs 
+  dat = cleandat_2(dat,resprange = log(Brange))       # clean NAs and Infs
   dat = rem_const(dat)                                # remove any independent variables with no variability (constant over simulations)
   dat
-  
+
 }
 
 

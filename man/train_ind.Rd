@@ -6,7 +6,8 @@
 \usage{
 train_ind(
   input,
-  nodes = c(6, 3),
+  TD,
+  nodes = c(10, 5),
   nepoch = 20,
   plot = T,
   model = NULL,
@@ -19,6 +20,8 @@ train_ind(
 }
 \arguments{
 \item{input}{Either a list object with a single dataset (e.g. Shark_1_data) or a list object npeels long with a dataset for retrospective analysis (e.g. Shark_1_retro).}
+
+\item{TD}{The training dataset (requires EcoTestData) and created by prepare_TD()}
 
 \item{nodes}{A vector of 2 positions. Positive integers. There are few general rules for neural network design. However one rule of thumb is that the width of the first and second layer of the neural network. In general, the first layer should be smaller than the number of features (data types) in the user specified dataset. The second layer should be smaller than the first layer. Check for overparameterization in the fitting plots (e.g. a validation MAE that is substantially higher than the training MAE).}
 
