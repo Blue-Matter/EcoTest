@@ -317,8 +317,8 @@ library(keras3)
 # --- Step 2 ---
 Install Git from https://git-scm.com/install/windows and restart RStudio
 
-# --- Step 3 ---
-reticulate::install_python(version = '3.11') 
+# --- Step 3 ---retr
+reticulate::install_python(version = '3.11', force=TRUE) 
 
 # --- Step 4 ---
 install_keras() 
@@ -326,9 +326,9 @@ install_keras()
 # EcoTest packages 
 
 # --- Step 5 ---
-install.packages("remotes")
-remotes::install_github('blue-matter/EcoTestData')
-remotes::install_github('blue-matter/EcoTest')
+install.packages("pak")
+pak::pkg_install("blue-matter/EcoTestData")
+pak::pkg_install('blue-matter/EcoTest')
 
 ```
 
@@ -339,7 +339,9 @@ To test your installation run the following code
 
 ```{r Test_Install, eval=F,echo=T}
 library(EcoTest)
-test = train_ind(Shark_1_data)
+TD = prepare_TD()        
+EcoTest::train_NN(TD)
+
 ```
 
 If your packages are working you should see something like this:
