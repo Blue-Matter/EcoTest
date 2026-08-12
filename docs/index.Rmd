@@ -307,15 +307,29 @@ The EcoTest package has only been tested on a Windows x64 system.
 Open RStudio and run the following lines of code at the R command prompt: 
 
 ```{r Installation, eval=F,echo=T}
+
 # Keras, Tensorflow, Miniconda
+
+# --- Step 1 ---
 install.packages("keras3")
 library(keras3)
-install_keras() # Note that to make this work you may have to install python (line below)
-# reticulate::install_python(version = '3.11')
 
-# EcoTest package 
+# --- Step 2 ---
+Install Git from https://git-scm.com/install/windows and restart RStudio
+
+# --- Step 3 ---
+reticulate::install_python(version = '3.11') 
+
+# --- Step 4 ---
+install_keras() 
+
+# EcoTest packages 
+
+# --- Step 5 ---
 install.packages("remotes")
+remotes::install_github('blue-matter/EcoTestData')
 remotes::install_github('blue-matter/EcoTest')
+
 ```
 
 
