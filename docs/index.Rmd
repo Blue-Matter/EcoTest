@@ -87,6 +87,7 @@ pre { /* Code block */
 
 ```{r setup, include=FALSE}
 library(EcoTest)
+library(EcoTestData)
 library(kableExtra)
 library(readxl)
 
@@ -136,7 +137,8 @@ getprog<-function(page){
   tab[is.na(tab)]=""
   kable(tab,"simple")#,col.names=rep("",2)) 
 }
- 
+
+TD = prepare_TD()  
 
 ```
 
@@ -218,6 +220,10 @@ The original ETest package was built around Indicator 2: an evolution of the ori
 The EcoTest package is a substantial update on ETest and makes use of a larger, and more general training dataset that better characterizes historical time series data. Neural networks trained on Indicator 3 provide improved precision and can be applied to a much wider range of life-histories in the groups of billfish, sharks and tunas. The EcoTest package also includes a much larger set of stock assessments for undertaking empirical comparisons. 
 
 
+### Indicator 4
+
+In order to better characterize the interaction and time-dependencies of the time-series data (e.g., catches, indices, mean length), Indicator 4 includes an temporal input layer in which multivariate time series inputs are combined, and their temporal properties and interactions may be characterized. The principal motivation behind this change in indicator structure is to develop indicator behaviors comparable to conventional models used to assess resources. 
+
 ***
 
 ## The Idea Behind EcoTest
@@ -230,9 +236,9 @@ EcoTest uses a conventional age-structured models to generate simulations of fis
 
 ### The Training Dataset
 
-Over a very large number of simulations a single year is selected and true, simulated stock status is taken from the model along with simulated data, and observable aspects of life history (e.g. growth and longevity) and fishing dynamics (e.g. selectivity). The outputs are processed into a large training dataset (many thousands of simulations) where each row is a simulation containing a number of columns. The first is the target variable of interest (stock status) and each subsequent column is a potential data input that could be used to estimate the target variable (e.g., slope in catches, current mean length relative to mean, somatic growth etc. etc. ). 
+Over a very large number of simulations a single year is selected and true, simulated stock status is taken from the model along with simulated data, and observable aspects of life history (e.g. growth and longevity) and fishing dynamics (e.g. selectivity). The outputs are processed into a large training dataset (many thousands of simulations) where each row is a simulation containing a number of columns. The first is the target variable of interest (stock status) and each subsequent column is a potential data input that could be used to estimate the target variable (e.g., indices over recent years, maximum age, somatic growth etc.). 
 
-The data inputs relate to trajectories, levels and variability of data such as catches, CPUE indices and mean length in catches and are processed and formatted in such a way that they can be calculated for any fishery (e.g. mean length in catches is phrased as a percentage of asymptotic length, slopes in data are slopes in log data etc). 
+The data inputs relate to time series data such as catches, CPUE indices and mean length in catches are processed and formatted in such a way that they can be calculated for any fishery (e.g. mean length in catches is phrased as a percentage of asymptotic length, catch trends and index trends have mean 1). 
 
 <img src="img/Idea_1.png" width = 550>
 
@@ -286,9 +292,10 @@ Potentially the least demanding use of the EcoTest approach would be to rapidly 
 
 ### R and RStudio
 
-The Keras, Tensorflow and Miniconda libraries on which EcoTest methods are based are highly sensitive to the version of R and RStudio. 
+The Keras, Tensorflow and Miniconda libraries on which EcoTest methods are dependent are R and RStudio specific. 
 
 It is therefore <u>highly</u> recommended that users install the very latest version of R and RStudio before continuing (you will almost certainly have difficulties otherwise). 
+
 
 R can be downloaded from the [R Project for Statistical Computing webpage](https://cloud.r-project.org/).
 
