@@ -58,16 +58,21 @@ emp_comp_plot = function(sdata, pred){
 #' @export
 pred_ind = function(Ind){
   model = Ind$model
-  is_retro=!is.null(Ind$retro)
-  sdata = Ind$sdata
-  if(!is_retro){
-     pred = exp((model %>% predict(sdata))[,1])
+  dind = grep("peel",names(Ind$input))
+  if(length(Ind$input)==1)dind=1
+  pred = sapply(dind,function(x){
+    dat = Ind$input[[x]]
+    exp((model %>% predict(as.matrix(dat)))[,1])
+  })
+  if("Brel"%in%names(Ind$input)){
+    out = list(pred = pred, Brel = Ind$input$Brel)
+    class(out) = "ETRetro"
   }else{
-    sretro= Ind$sretro
-    pred = lapply(sretro,function(x)exp((model %>% predict(x[[1]]))[,1]))
+    out = list(pred=pred)
+    class(out) = "ETPred"
   }
-  if(length(Ind$data)==2)emp_comp_plot(sdata, pred)
-  pred
+  #if(length(Ind$data)==2)emp_comp_plot(sdata, pred)
+  out
 }
 
 

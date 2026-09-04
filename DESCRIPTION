@@ -1,7 +1,7 @@
 Package: EcoTest
 Type: Package
 Title: Testing AI Indicators of Stock Status
-Version: 0.3.10
+Version: 4.0.3
 Authors@R: c(
     person(
       "Tom", "Carruthers",
@@ -9,7 +9,7 @@ Authors@R: c(
       role = c("aut", "cre")
     )
   )
-Description: Theoretical (simulation) and empirical (comparison with stock assessments) evaluation of indicators of spawning biomass relative to MSY levels. 
+Description: Theoretical (simulation) and empirical (comparison with stock assessments) evaluation of AI indicators of spawning biomass relative to MSY levels. 
 License: GNU-3
 Encoding: UTF-8
 LazyData: true
@@ -17,5 +17,8 @@ Depends:
   data.table,
   keras3,
   tensorflow,
-  EcoTestData
-RoxygenNote: 7.3.3
+  EcoTestData,
+  readxl,
+  writexl,
+  openMSE
+Config/roxygen2/version: 8.0.0
